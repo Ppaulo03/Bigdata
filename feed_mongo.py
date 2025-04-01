@@ -1,20 +1,23 @@
-import pandas as pd
-import pymongo
-import kagglehub
-import os
+from etl import etl
 from tqdm import tqdm
+import pandas as pd
+import kagglehub
+import pymongo
+import os
+
  
-def add_collection(db, file_name, path, batch_size=1000):
+def add_collection(db, collection_name, path, batch_size=1000):
     db[file_name].drop()
-    collection = db[file_name]
+    collection = db[collection_name]
     total_rows = sum(1 for _ in open(path))
+    
     with tqdm(total=total_rows, desc=f"Inserting {file_name}", unit="row") as pbar:
         for chunk in pd.read_csv(path, chunksize=batch_size):
-            data = chunk.to_dict(orient='records')
+            data = etl(chunk)
             collection.insert_many(data)
             pbar.update(len(chunk))
 
-    print(f"{file_name} inserted into MongoDB")
+    print(f"{collection_name} inserted into MongoDB")
 
 
 # Download latest version
@@ -26,6 +29,6 @@ for file in os.listdir(path):
     if file.endswith(".csv"):
         file_path = os.path.join(path, file)
         file_name = file.split(".")[0]
-        add_collection(db, file_name, file_path)
+        add_collection(db, "Acidentes - Tratados", file_path)
 
 
