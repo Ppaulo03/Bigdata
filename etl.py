@@ -5,7 +5,7 @@ import numpy as np
 def etl(df_raw):
     colunas_desejadas = {
         "ID": "ID",
-        "Severity": "Gravidade",
+        "Severity": "Impacto",
         "Start_Time": "Data_Hora_Inicio",
         "End_Time": "Data_Hora_Fim",
         "Distance(mi)": "Distância(m)",
@@ -57,12 +57,13 @@ def etl(df_raw):
     for col in colunas_categoricas:
         if col in df.columns:
             moda = df[col].mode(dropna=True)
+            print(moda)
             if not moda.empty:
                 df[col] = df[col].fillna(moda[0])
 
     # Substituir valores ausentes nas colunas numéricas pela média
     colunas_numericas = [
-        "Gravidade", "Distancia(m)", "Temperatura(°C)",
+        "Impacto", "Distancia(m)", "Temperatura(°C)",
         "Visibilidade(m)", "Precipitação(mm)", "Duração"
     ]
 
@@ -82,7 +83,7 @@ def etl(df_raw):
 
     # Forçar tipos de dados
     df["ID"] = df["ID"].astype(int)
-    df["Gravidade"] = df["Gravidade"].astype(int)
+    df["Impacto"] = df["Impacto"].astype(int)
     df["Duração"] = df["Duração"].astype(float)
     df["Distância(m)"] = df["Distância(m)"].astype(float)
     df["Temperatura(°C)"] = df["Temperatura(°C)"].astype(float)
@@ -102,28 +103,21 @@ def etl(df_raw):
     })
 
     # Substituir valores de Condição_Tempo
-    df["Condição_Tempo"] = df["Condição_Tempo"].replace({
-        "Light Rain": "Chuva Leve",
-        "Overcast": "Nublado",
-        "Mostly Cloudy": "Predominantemente Nublado",
-        "Rain": "Chuva",
-        "Light Snow": "Neve Leve",
-        "Haze": "Névoa",
-        "Scattered Clouds": "Nuvens Dispersas",
-        "Partly Cloudy": "Parcialmente Nublado",
-        "Clear": "Céu Limpo",
-        "Snow": "Neve",
-        "Light Freezing Drizzle": "Garoa Congelante Leve",
-        "Light Drizzle": "Garoa Leve",
-        "Fog": "Nevoeiro",
-        "Fair": "Ameno"
-    })
+    trad_df = pd.read_csv("condicoes_traduzidas.csv")
+    trad_df = trad_df[trad_df["traduzido"].notna() & (trad_df["traduzido"] != "")]
+    trad_dict = dict(zip(trad_df["original"], trad_df["traduzido"]))
+    df["Condição_Tempo"] = df["Condição_Tempo"].replace(trad_dict)
+    
+    condicoes_unicas = df["Condição_Tempo"].unique()
+    condicoes_nao_traduzidas = [c for c in condicoes_unicas if c not in trad_dict]
+    print("Faltando traduzir:", condicoes_nao_traduzidas)
 
-    # Substituir valores de Gravidade
-    df["Gravidade"] = df["Gravidade"].replace({
+    # Substituir valores de Impacto
+    df["Impacto"] = df["Impacto"].replace({
         1: "Leve",
-        2: "Moderada",
-        3: "Grave"
+        2: "Moderado",
+        3: "Alto",
+        4: "Muito Alto"
     })
 
     return df.to_dict(orient="records")

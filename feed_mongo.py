@@ -6,7 +6,7 @@ import pymongo
 import os
 
  
-def add_collection(db, collection_name, path, batch_size=1000):
+def add_collection(db, collection_name, path, batch_size=5000):
     db[file_name].drop()
     collection = db[collection_name]
     total_rows = sum(1 for _ in open(path))
