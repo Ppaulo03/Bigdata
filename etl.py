@@ -33,7 +33,7 @@ def etl(df_raw):
     df = df_raw[list(colunas_desejadas.keys())]
     df = df.rename(columns=colunas_desejadas)
 
-# Mudar os IDs para int
+    # Mudar os IDs para int
     def convert_to_int(id_str):
         return int(id_str.split("-")[1]) 
 
@@ -127,10 +127,3 @@ def etl(df_raw):
     })
 
     return df.to_dict(orient="records")
-    # Converter o DataFrame para lista de dicionários
-    registros = df.to_dict(orient="records")
-
-    # Inserir no MongoDB na nova coleção "Acidentes - Tratados"
-    db["Acidentes - Tratados"].insert_many(registros)
-
-    
