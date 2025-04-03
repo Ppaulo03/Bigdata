@@ -6,7 +6,7 @@ app = FastAPI()
 
 client = pymongo.MongoClient("mongodb://localhost:27017/")
 db = client["accidents"]
-collection = db["US_Accidents_March23"]
+collection = db["Acidentes - Tratados"]
 
 sort_accidents = {'$sort': { 'accidentCount': -1 }}
 sort_accidents_acc = {'$sort': { 'accidentCount': 1 }}
@@ -25,42 +25,65 @@ def aggregation(pipeline):
 
 @app.get("/top_10_days")
 def get_top_10_days():
-    pipeline = [{
+    pipeline = [
+        {
             '$project': {
-                'date': { '$dateToString': { 'format': '%Y-%m-%d', 'date': '$Data_Hora_Inicio' } }
+                'month_day': {
+                    '$dateToString': {
+                        'format': '%m-%d',
+                        'date': '$Data_Hora_Inicio'
+                    }
+                }
             }
         },
         {
-            # Group by the date and count the accidents
             '$group': {
-                '_id': '$date',
+                '_id': '$month_day',
                 'accidentCount': { '$sum': 1 }
             }
-        },sort_accidents,
+        },
+        {
+            '$sort': {
+                'accidentCount': -1
+            }
+        },
         {
             '$limit': 10
-        }]
+        }
+    ]
     
     return aggregation(pipeline)
 
 
+
 @app.get("/least_10_days")
 def get_least_10_days():
-    pipeline = [{
+    pipeline = [
+        {
             '$project': {
-                'date': { '$dateToString': { 'format': '%Y-%m-%d', 'date': '$Data_Hora_Inicio' } }
+                'month_day': {
+                    '$dateToString': {
+                        'format': '%m-%d',
+                        'date': '$Data_Hora_Inicio'
+                    }
+                }
             }
         },
         {
-            # Group by the date and count the accidents
             '$group': {
-                '_id': '$date',
+                '_id': '$month_day',
                 'accidentCount': { '$sum': 1 }
             }
-        },sort_accidents_acc,
+        },
+        {
+            '$sort': {
+                'accidentCount': 1
+            }
+        },
         {
             '$limit': 10
-        }]
+        }
+    ]
     
     return aggregation(pipeline)
 
@@ -79,20 +102,19 @@ def get_accidents_by_state():
 
 @app.get("/accidents_by_city")
 def get_accidents_by_city(state: str = Query(None)):
+    pipeline = []
+
     if state:
-        pipeline = [{
-            '$match': { 'Estado': state }
-        }]
-    else:
-        pipeline = []
-    
-    pipeline += [{
-        '$group': {
+        pipeline.append({ '$match': { 'Estado': state } })
+
+    pipeline += [
+        { '$group': {
             '_id': '$Cidade',
             'accidentCount': { '$sum': 1 }
-        }
-    },sort_accidents]
-    
+        }},
+        sort_accidents
+    ]
+
     return aggregation(pipeline)
 
 @app.get("/accidents_by_weather")
@@ -118,7 +140,7 @@ def get_accidents_by_weather(state: str = Query(None)):
 def get_list_weather_conditions():
     pipeline = [{
         '$group': {
-            '_id': '$Weather_Condition',
+            '_id': '$Condição_Tempo',
             'accidentCount': { '$sum': 1 }
         }
     },sort_accidents]

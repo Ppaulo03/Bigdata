@@ -28,6 +28,62 @@ def etl(df_raw):
         "Sunrise_Sunset": "Nascer_Pôr_Sol",
     }
 
+    siglas_estados = {
+        'AL': 'Alabama',
+        'AK': 'Alaska',
+        'AZ': 'Arizona',
+        'AR': 'Arkansas',
+        'CA': 'Califórnia',
+        'CO': 'Colorado',
+        'CT': 'Connecticut',
+        'DE': 'Delaware',
+        'FL': 'Flórida',
+        'GA': 'Geórgia',
+        'HI': 'Havaí',
+        'ID': 'Idaho',
+        'IL': 'Illinois',
+        'IN': 'Indiana',
+        'IA': 'Iowa',
+        'KS': 'Kansas',
+        'KY': 'Kentucky',
+        'LA': 'Louisiana',
+        'ME': 'Maine',
+        'MD': 'Maryland',
+        'MA': 'Massachusetts',
+        'MI': 'Michigan',
+        'MN': 'Minnesota',
+        'MS': 'Mississippi',
+        'MO': 'Missouri',
+        'MT': 'Montana',
+        'NE': 'Nebraska',
+        'NV': 'Nevada',
+        'NH': 'New Hampshire',
+        'NJ': 'New Jersey',
+        'NM': 'Novo México',
+        'NY': 'Nova York',
+        'NC': 'Carolina do Norte',
+        'ND': 'Dakota do Norte',
+        'OH': 'Ohio',
+        'OK': 'Oklahoma',
+        'OR': 'Oregon',
+        'PA': 'Pensilvânia',
+        'RI': 'Rhode Island',
+        'SC': 'Carolina do Sul',
+        'SD': 'Dakota do Sul',
+        'TN': 'Tennessee',
+        'TX': 'Texas',
+        'UT': 'Utah',
+        'VT': 'Vermont',
+        'VA': 'Virgínia',
+        'WA': 'Washington',
+        'WV': 'Virgínia Ocidental',
+        'WI': 'Wisconsin',
+        'WY': 'Wyoming',
+        'DC': 'Distrito de Colúmbia',
+        'PR': 'Porto Rico'
+    }
+
+
     df = df_raw[list(colunas_desejadas.keys())]
     df = df.rename(columns=colunas_desejadas)
 
@@ -55,9 +111,11 @@ def etl(df_raw):
     for col in colunas_categoricas:
         if col in df.columns:
             moda = df[col].mode(dropna=True)
-            print(moda)
             if not moda.empty:
                 df[col] = df[col].fillna(moda[0])
+            else:
+                print(f"Coluna {col} não possui valores para calcular a moda.")
+                print(df[col].isna().sum())
 
     # Substituir valores ausentes nas colunas numéricas pela média
     colunas_numericas = [
@@ -115,6 +173,11 @@ def etl(df_raw):
     # Também normaliza os dados do DataFrame para lowercase antes de substituir
     df["Condição_Tempo"] = df["Condição_Tempo"].str.lower()
     df["Condição_Tempo"] = df["Condição_Tempo"].replace(trad_dict)
+
+
+    # Substitui as siglas pelos nomes completos
+    df["Estado"] = df["Estado"].str.upper()
+    df["Estado"] = df["Estado"].replace(siglas_estados)
 
     # Substituir valores de Impacto
     df["Impacto"] = df["Impacto"].replace({
