@@ -103,7 +103,7 @@ def get_accidents_by_state():
 @app.get("/accidents_by_city")
 def get_accidents_by_city(state: str = Query(None)):
     pipeline = []
-
+    print(state)
     if state:
         pipeline.append({ '$match': { 'Estado': state } })
 

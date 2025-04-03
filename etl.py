@@ -94,7 +94,6 @@ def etl(df_raw):
     df["ID"] = df["ID"].apply(convert_to_int)
 
     # Correção do formato de data e hora
- 
     df["Data_Hora_Inicio"] = pd.to_datetime(df["Data_Hora_Inicio"], format='mixed', yearfirst=True)
     df["Data_Hora_Fim"] = pd.to_datetime(df["Data_Hora_Fim"], format='mixed', yearfirst=True)
 

@@ -28,22 +28,22 @@ def formatar_dia(dia):
 params = {}
 if consulta == "Acidentes por Cidade":
     filtro = st.selectbox("Selecione o estado", ['',
-        'CA', 'TX', 'FL', 'NY', 'IL', 'PA', 'OH', 'GA', 'NC', 'MI',
-        'NJ', 'VA', 'WA', 'AZ', 'MA', 'MD', 'IN', 'MO', 'TN', 'WI',
-        'CO', 'SC', 'AL', 'KY', 'OR', 'OK', 'CT', 'IA', 'KS', 'NV',
-        'UT', 'AR', 'MS'
+        'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC',
+        'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY',
+        'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT',
+        'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH',
+        'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX',
+        'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
     ])
-    params = {"filtro": filtro.title()}
+    params = {"state": filtro.title()}
 
 # Requisição para a API com params (mesmo se estiver vazio)
 resposta = requests.get(f"http://127.0.0.1:8000/{endpoints[consulta]}", params=params)
-print(resposta)
 
 if resposta.status_code == 200:
     dados = resposta.json()
     if dados:
         df = pd.DataFrame(dados)
-        print(df.head)
 
         # Renomeia colunas esperadas
         if '_id' in df.columns:
@@ -57,12 +57,33 @@ if resposta.status_code == 200:
         if consulta in ["Dias com mais acidentes", "Dias com menos acidentes"]:
             # Reformatar mm-dd para dd/mm
             df["dado"] = df["dado"].apply(formatar_dia)
-
+            st.write("Dias em que ocorreram mais acidentes ao longo do período analisado" if consulta == "Dias com mais acidentes" else "Dias em que ocorreram menos acidentes ao longo do período analisado")
             st.dataframe(df)
-            df = df.sort_values("valor", ascending=(consulta == "Dias com menos acidentes"))
-            st.bar_chart(df.set_index("dado")["valor"])
+
+            # Ordenar os dados: crescente se for "menos acidentes", decrescente se for "mais"
+            asc = consulta == "Dias com menos acidentes"
+            df = df.sort_values("valor", ascending=asc)
+
+            # Gráfico de barras horizontal com Plotly
+            fig = px.bar(
+                df,
+                x="valor",
+                y="dado",
+                orientation='h',
+                labels={"valor": "Número de Acidentes", "dado": "Dia"},
+                title="Dias com Mais Acidentes" if not asc else "Dias com Menos Acidentes"
+            )
+
+            fig.update_layout(
+                yaxis=dict(categoryorder='total ascending' if not asc else 'total descending'),
+                margin=dict(l=40, r=10, t=40, b=40),
+                height=500
+            )
+
+            st.plotly_chart(fig, use_container_width=True)
         
         elif consulta == "Acidentes por Estado":
+            st.write("Quantidade de acidentes por estado ao longo do período analisado")
             df = df.sort_values("valor", ascending=True)
 
             fig = px.bar(
@@ -87,6 +108,7 @@ if resposta.status_code == 200:
             st.plotly_chart(fig, use_container_width=True)
         
         elif consulta == "Acidentes por Cidade":
+            st.write("Quantidade de acidentes por cidade ao longo do período analisado")
             # Filtra os 10 com maior número de acidentes
             df = df.nlargest(10, "valor")
             df = df.sort_values("valor", ascending=True)  # ordem crescente pra barra horizontal
@@ -105,6 +127,35 @@ if resposta.status_code == 200:
                 margin=dict(l=100, r=20, t=60, b=40),
                 yaxis=dict(tickfont=dict(size=12)),
                 xaxis=dict(title_font=dict(size=14)),
+            )
+
+            st.plotly_chart(fig, use_container_width=True)
+
+        elif consulta == "Acidentes por Condição Climática":
+            st.write("Condições climáticas mais presentes nos acidentes ao longo do período analisado")
+            # Filtra os 10 com maior número de acidentes
+            df = df.nlargest(10, "valor")
+            # Mostra a tabela
+            st.dataframe(df)
+
+            # Ordena para exibir do menor pro maior no gráfico de barras horizontais (visualmente de cima pra baixo)
+            df = df.sort_values("valor", ascending=True)
+
+            # Gráfico de barras horizontal com Plotly
+            fig = px.bar(
+                df,
+                x="valor",
+                y="dado",
+                orientation='h',
+                labels={"valor": "Número de Acidentes", "dado": "Condição Climática"},
+                title="Top 10 Condições Climáticas com Mais Acidentes"
+            )
+
+            # Deixa o layout mais clean
+            fig.update_layout(
+                yaxis=dict(categoryorder='total ascending'),  # Ordena do maior pro menor no eixo Y
+                margin=dict(l=40, r=10, t=40, b=40),
+                height=500
             )
 
             st.plotly_chart(fig, use_container_width=True)

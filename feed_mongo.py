@@ -5,7 +5,7 @@ import kagglehub
 import pymongo
 import os
 
- 
+# Função para tratar e inserir os dados no MongoDB em lotes
 def add_collection(db, collection_name, path, batch_size=5000):
     db[file_name].drop()
     collection = db[collection_name]
@@ -20,9 +20,10 @@ def add_collection(db, collection_name, path, batch_size=5000):
     print(f"{collection_name} inserted into MongoDB")
 
 
-# Download latest version
+# Caminho para o dataset
 path = kagglehub.dataset_download("sobhanmoosavi/us-accidents")
 
+# Conexão com o MongoDB
 client = pymongo.MongoClient("mongodb://localhost:27017/")
 db = client["accidents"]
 for file in os.listdir(path):
