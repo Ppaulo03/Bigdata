@@ -28,12 +28,16 @@ def formatar_dia(dia):
 params = {}
 if consulta == "Acidentes por Cidade":
     filtro = st.selectbox("Selecione o estado", ['',
-        'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC',
-        'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY',
-        'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT',
-        'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH',
-        'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX',
-        'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
+        'Alabama','Arizona','Arkansas','Califórnia','Colorado',
+        'Connecticut','Delaware','Flórida','Geórgia','Idaho',
+        'Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana',
+        'Maine','Maryland','Massachusetts','Michigan','Minnesota',
+        'Mississippi','Missouri','Montana','Nebraska','Nevada',
+        'Nova Hampshire','Nova Jersey','Novo México','Nova York',
+        'Carolina do Norte','Dakota do Norte','Ohio','Oklahoma','Oregon',
+        'Pensilvânia','Rhode Island','Carolina do Sul','Dakota do Sul',
+        'Tennessee','Texas','Utah','Vermont','Virgínia','Washington',
+        'Virgínia Ocidental','Wisconsin','Wyoming','Distrito de Colúmbia',
     ])
     params = {"state": filtro.title()}
 

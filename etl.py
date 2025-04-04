@@ -30,7 +30,7 @@ def etl(df_raw):
 
     siglas_estados = {
         'AL': 'Alabama',
-        'AK': 'Alaska',
+        'AK': 'Alasca',
         'AZ': 'Arizona',
         'AR': 'Arkansas',
         'CA': 'Califórnia',
@@ -57,8 +57,8 @@ def etl(df_raw):
         'MT': 'Montana',
         'NE': 'Nebraska',
         'NV': 'Nevada',
-        'NH': 'New Hampshire',
-        'NJ': 'New Jersey',
+        'NH': 'Nova Hampshire',
+        'NJ': 'Nova Jersey',
         'NM': 'Novo México',
         'NY': 'Nova York',
         'NC': 'Carolina do Norte',
