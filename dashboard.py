@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import requests
-import matplotlib as plt
 import plotly.express as px
 
 st.title("Dashboard - Acidentes de Trânsito nos Estados Unidos (2016 - 2023)")
